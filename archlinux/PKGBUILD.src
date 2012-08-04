@@ -1,0 +1,24 @@
+pkgname=trixiekeys
+pkgver=0.1
+pkgrel=1
+pkgdesc="Small daemon that grabs the /dev/input/event0 and replaces some characters"
+arch=('i686' 'x86_64')
+url="todo://url"
+license=('MIT')
+depends=()
+makedepends=()
+conflicts=()
+
+source=('trixiekeysd' 'trixiekeys.h' 'trixiekeys.c' 'config.c')
+
+build() {
+    cd "$srcdir"
+    gcc -std=c99 -D_BSD_SOURCE -Os -pedantic -Wall trixiekeys.c config.c -o trixiekeys
+}
+
+package() {
+    install -m755 -o root -g root -D "$srcdir/trixiekeysd" "$pkgdir/etc/rc.d/trixiekeysd"
+    install -m755 -o root -g root -D "$srcdir/trixiekeys" "$pkgdir/usr/bin/trixiekeys"
+}
+
+# md5sums will be added automatically
