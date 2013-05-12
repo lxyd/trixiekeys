@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-gcc -std=c99 -pedantic -Wall main.c config.c -o trixiekeys
+gcc -std=c99 -pedantic -Wall trixiekeys.c config.c -o trixiekeys
 #sudo ./trixiekeys "Microsoft Comfort Curve Keyboard 2000"
-sudo ./trixiekeys /dev/input/event15
+#sudo ./trixiekeys "USB Keyboard"
+sudo ./trixiekeys "Apple Inc. Apple Internal Keyboard / Trackpad"
 #sudo ./trixiekeys /dev/input/event0

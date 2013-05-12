@@ -1,8 +1,8 @@
 #include <dirent.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
+#include <string.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <dirent.h>
@@ -145,13 +145,21 @@ void process_event(const struct input_event * iev) {
         case VAL_PRESS:
             if (candidate) {
                 modifier = candidate;
-                current_map = press_map[modifier]->mod_map;
                 candidate = 0;
+                if (press_map[modifier]->mod_map) {
+                    current_map = press_map[modifier]->mod_map;
+                }
+                if (press_map[modifier]->mod_code) {
+                    SEND(press_map[modifier]->mod_code);
+                }
             }
             k = &current_map[iev->code];
             press_map[iev->code] = k;
             flush_buffer();
-            if (k->mod_map && !modifier) {
+            if ((k->mod_map || k->mod_code) && !modifier) {
+#ifdef DEBUG
+                printf("MODIFIER CANDIDATE: %d %d\n", k->mod_code, k->mod_map != NULL);
+#endif
                 candidate = iev->code;
             } else {
                 if (k->key_code) {
@@ -172,6 +180,9 @@ void process_event(const struct input_event * iev) {
             } else if (iev->code == modifier) {
                 modifier = 0;
                 current_map = start_map;
+                if (k->mod_code) {
+                    SEND( - k->mod_code);
+                }
                 flush_buffer();
             } else if (iev->code == candidate) {
                 candidate = 0;
@@ -263,6 +274,25 @@ int main(int argc, char* argv[]) {
     char udev_path[256] = "/dev/uinput";
     char devdir_path[256] = "/dev/input/";
 
+    char* event_types[EV_CNT] = { NULL };
+    #define ADD_EVENT_TYPE(x) (event_types[x] = #x)
+    ADD_EVENT_TYPE(EV_SYN);
+    ADD_EVENT_TYPE(EV_SYN);
+    ADD_EVENT_TYPE(EV_KEY);
+    ADD_EVENT_TYPE(EV_REL);
+    ADD_EVENT_TYPE(EV_ABS);
+    ADD_EVENT_TYPE(EV_MSC);
+    ADD_EVENT_TYPE(EV_SW);
+    ADD_EVENT_TYPE(EV_LED);
+    ADD_EVENT_TYPE(EV_SND);
+    ADD_EVENT_TYPE(EV_REP);
+    ADD_EVENT_TYPE(EV_FF);
+    ADD_EVENT_TYPE(EV_PWR);
+    ADD_EVENT_TYPE(EV_FF_STATUS);
+    ADD_EVENT_TYPE(EV_MAX);
+    #undef ADD_EVENT_TYPE
+    #define EVENT_TYPE(x) (((x) >= 0 && (x) < ARR_LEN(event_types) && event_types[(x)]) ? event_types[(x)] : "EV_UNKNOWN")
+
 	signal(SIGTERM, sighandler);
     signal(SIGINT, sighandler);
 
@@ -290,7 +320,7 @@ int main(int argc, char* argv[]) {
 
     // 3. grab hardware device
 
-    hdev_fd = open(hdev_path, O_RDWR | O_NDELAY);
+    hdev_fd = open(hdev_path, O_RDWR);// | O_NDELAY);
     if (hdev_fd < 0) {
         die("Couldn't open source event device.");
     }
@@ -304,7 +334,7 @@ int main(int argc, char* argv[]) {
 
     // 4. setup uinput device
 
-    udev_fd = open(udev_path, O_RDWR | O_NDELAY);
+    udev_fd = open(udev_path, O_RDWR);// | O_NDELAY);
     if (udev_fd < 0) {
         die("Couldn't open uinput device.");
     }
@@ -336,17 +366,17 @@ int main(int argc, char* argv[]) {
 
     start_map = current_map = get_map();
 
-    // 6. create fd_set to select from input devices
+    // 6. become daemon
+
+	daemon(0, 1);
+
+    // 7. create fd_set to select from input devices
 
     fd_set read_fd_set;
     const int nfds = (hdev_fd > udev_fd ? hdev_fd : udev_fd) + 1;
     FD_ZERO(&read_fd_set);
     FD_SET(hdev_fd, &read_fd_set);
     FD_SET(udev_fd, &read_fd_set);
-
-    // 7. become daemon
-
-	daemon(0, 1);
 
     // 8. enter main loop
 
@@ -362,6 +392,8 @@ int main(int argc, char* argv[]) {
             
             read_event(udev_fd, &ev);
 
+            //printf("U: %s %7d %3hd %30ld\n", EVENT_TYPE(ev.type), ev.value, ev.code, ev.time.tv_usec);
+
             if (ev.type == EV_LED) {
                 write_event(hdev_fd, &ev);
             }
@@ -371,6 +403,8 @@ int main(int argc, char* argv[]) {
         if (FD_ISSET(hdev_fd, &read_fd_set)) {
             
             read_event(hdev_fd, &ev);
+
+            //printf("H: %s %7d %3hd %30ld\n", EVENT_TYPE(ev.type), ev.value, ev.code, ev.time.tv_usec);
 
             switch (ev.type) {
 

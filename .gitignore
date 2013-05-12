@@ -3,3 +3,4 @@ archlinux/build/**/*
 archlinux/build/*
 *.swp
 *~
+trixiekeys

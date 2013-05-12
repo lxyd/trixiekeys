@@ -2,13 +2,18 @@
 
 BEGIN_CONFIG
 
+
 CREATE_MAP(defmap);
 INIT_MAP_IDENTITY(defmap);
 
-CREATE_MAP(cplkmap);
-INIT_MAP_IGNORE(cplkmap);
+MAP_KEY(defmap, KEY_RIGHTMETA, KEY_SCROLLLOCK);
+MAP_MODIFIER(defmap, KEY_RIGHTMETA, KEY_RIGHTMETA);
 
-MAP_MODIFIER(defmap, KEY_CAPSLOCK, cplkmap);
+
+CREATE_MAP(cplkmap);
+INIT_MAP_IDENTITY(cplkmap);
+
+MAP_SWITCH(defmap, KEY_CAPSLOCK, cplkmap);
 
 MAP_KEY(cplkmap, KEY_A, KEY_LEFTCTRL);
 MAP_KEY(cplkmap, KEY_S, KEY_LEFTSHIFT);
@@ -28,5 +33,6 @@ MAP_KEY(cplkmap, KEY_DOT, KEY_END);
 
 MAP_KEY(cplkmap, KEY_U, KEY_BACKSPACE);
 MAP_KEY(cplkmap, KEY_O, KEY_DELETE);
+
 
 END_CONFIG(defmap)
