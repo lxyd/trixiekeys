@@ -274,6 +274,7 @@ int main(int argc, char* argv[]) {
     char udev_path[256] = "/dev/uinput";
     char devdir_path[256] = "/dev/input/";
 
+    /*
     char* event_types[EV_CNT] = { NULL };
     #define ADD_EVENT_TYPE(x) (event_types[x] = #x)
     ADD_EVENT_TYPE(EV_SYN);
@@ -292,6 +293,7 @@ int main(int argc, char* argv[]) {
     ADD_EVENT_TYPE(EV_MAX);
     #undef ADD_EVENT_TYPE
     #define EVENT_TYPE(x) (((x) >= 0 && (x) < ARR_LEN(event_types) && event_types[(x)]) ? event_types[(x)] : "EV_UNKNOWN")
+    */
 
 	signal(SIGTERM, sighandler);
     signal(SIGINT, sighandler);
@@ -368,7 +370,7 @@ int main(int argc, char* argv[]) {
 
     // 6. become daemon
 
-	daemon(0, 1);
+	// daemon(0, 1);
 
     // 7. create fd_set to select from input devices
 

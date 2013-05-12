@@ -9,8 +9,7 @@ case "$1" in
     start)
         stat_busy "Starting TrixieKeys daemon"
 
-        /usr/bin/trixiekeys "AT Translated Set 2 keyboard"
-        #"USB Keyboard"
+        /usr/bin/trixiekeys "$(cat /etc/trixiekeys_keyboard_name)" & disown
 
         if [[ $? -gt 0 ]]; then
             stat_fail

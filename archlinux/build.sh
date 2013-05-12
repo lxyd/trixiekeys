@@ -7,7 +7,7 @@ mkdir build || exit 1
 
 . PKGBUILD.src
 
-cp ../trixiekeys.c ../trixiekeys.h ../config.c ../trixiekeysd build/
+cp ../src/* files/* build/
 cp PKGBUILD.src build/PKGBUILD
 
 cd build

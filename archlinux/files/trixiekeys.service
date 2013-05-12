@@ -1,0 +1,8 @@
+[Unit]
+Description=TrixieKeys Key Events Substitutor
+After=systemd-udev-settle.service
+
+[Service]
+Type=forking
+PIDFile=/var/run/trixiekeys.pid
+ExecStart=/usr/bin/trixiekeys "$(cat /etc/trixiekeys_keyboard_name)"
