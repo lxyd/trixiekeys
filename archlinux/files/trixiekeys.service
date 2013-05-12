@@ -6,3 +6,6 @@ After=systemd-udev-settle.service
 Type=forking
 PIDFile=/var/run/trixiekeys.pid
 ExecStart=/usr/bin/trixiekeys "$(cat /etc/trixiekeys_keyboard_name)"
+
+[Install]
+WantedBy=multi-user.target
