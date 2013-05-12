@@ -13,7 +13,7 @@ source=('trixiekeysd' 'trixiekeys.service' 'trixiekeys_keyboard_name' 'trixiekey
 
 build() {
     cd "$srcdir"
-    gcc -std=c99 -Os -pedantic -Wall trixiekeys.c config.c -o trixiekeys
+    gcc -std=c99 -D_BSD_SOURCE -Os -pedantic -Wall trixiekeys.c config.c -o trixiekeys
 }
 
 package() {

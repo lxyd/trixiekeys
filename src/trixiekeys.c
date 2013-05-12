@@ -370,7 +370,7 @@ int main(int argc, char* argv[]) {
 
     // 6. become daemon
 
-	// daemon(0, 1);
+	daemon(0, 1);
 
     // 7. create fd_set to select from input devices
 
