@@ -17,7 +17,7 @@
 
 #include "trixiekeys.h"
 
-//#define DEBUG
+#define DEBUG
 
 #define VAL_PRESS 1
 #define VAL_RELEASE 0
@@ -28,7 +28,7 @@
 
 key_data *get_map(); // defined in config.c
 
-key_data *start_map;
+key_data *permanent_map;
 key_data *current_map;
 
 int candidate = 0;
@@ -146,8 +146,8 @@ void process_event(const struct input_event * iev) {
             if (candidate) {
                 modifier = candidate;
                 candidate = 0;
-                if (press_map[modifier]->mod_map) {
-                    current_map = press_map[modifier]->mod_map;
+                if (press_map[modifier]->shift_map) {
+                    current_map = press_map[modifier]->shift_map;
                 }
                 if (press_map[modifier]->mod_code) {
                     SEND(press_map[modifier]->mod_code);
@@ -156,13 +156,16 @@ void process_event(const struct input_event * iev) {
             k = &current_map[iev->code];
             press_map[iev->code] = k;
             flush_buffer();
-            if ((k->mod_map || k->mod_code) && !modifier) {
+            if ((k->shift_map || k->mod_code) && !modifier) {
 #ifdef DEBUG
-                printf("MODIFIER CANDIDATE: %d %d\n", k->mod_code, k->mod_map != NULL);
+                printf("MODIFIER CANDIDATE: %d %d\n", k->mod_code, k->shift_map != NULL);
 #endif
                 candidate = iev->code;
             } else {
-                if (k->key_code) {
+                if (k->lock_map) {
+                    // do nothing
+                    //permanent_map = k->lock_map; will be done on release
+                } else if (k->key_code) {
                     SEND(k->key_code);
                 } else if (k->key_codes) {
                     int *p = k->key_codes;
@@ -179,7 +182,7 @@ void process_event(const struct input_event * iev) {
                 SEND( - iev->code); // key was pressed before we started
             } else if (iev->code == modifier) {
                 modifier = 0;
-                current_map = start_map;
+                current_map = permanent_map;
                 if (k->mod_code) {
                     SEND( - k->mod_code);
                 }
@@ -198,7 +201,9 @@ void process_event(const struct input_event * iev) {
                     event_buf[event_buf_len++] = -k->key_code;
                 }
             } else {
-                if (k->key_code) {
+                if (k->lock_map) {
+                    current_map = permanent_map = k->lock_map;
+                } else if (k->key_code) {
                     SEND( - k->key_code);
                 }
             }
@@ -366,7 +371,7 @@ int main(int argc, char* argv[]) {
 
     // 5. obtain user's config
 
-    start_map = current_map = get_map();
+    permanent_map = current_map = get_map();
 
     // 6. become daemon
 
