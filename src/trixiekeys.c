@@ -17,7 +17,7 @@
 
 #include "trixiekeys.h"
 
-#define DEBUG
+//#define DEBUG
 
 #define VAL_PRESS 1
 #define VAL_RELEASE 0
