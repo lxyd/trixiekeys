@@ -1,5 +1,5 @@
 pkgname=trixiekeys
-pkgver=0.2
+pkgver=0.3
 pkgrel=1
 pkgdesc="Small daemon that grabs the keyboard and replaces some characters"
 arch=('i686' 'x86_64')

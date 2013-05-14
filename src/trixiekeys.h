@@ -69,10 +69,10 @@ struct __key_data {
     (map)[orig_key].key_codes = 0;        \
     (map)[orig_key].lock_map = 0
 
-#define MAP_KEY_SEQUENCE(map, orig_key, new_keys)             \
-    static int *__key_codes_##map_##orig_key = new_keys;      \
-    (map)[orig_key].key_codes = __key_codes_##map_##orig_key; \
-    (map)[orig_key].key_code = 0;                             \
+#define MAP_KEY_SEQUENCE(map, orig_key, ...)                      \
+    static int __key_codes_##map_##orig_key[] = {__VA_ARGS__, 0}; \
+    (map)[orig_key].key_codes = __key_codes_##map_##orig_key;     \
+    (map)[orig_key].key_code = 0;                                 \
     (map)[orig_key].lock_map = 0
 
 #define MAP_SHIFT(map, orig_key, new_map) \
