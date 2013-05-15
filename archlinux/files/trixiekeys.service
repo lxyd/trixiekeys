@@ -1,6 +1,6 @@
 [Unit]
 Description=TrixieKeys Key Events Substitutor
-After=systemd-udev-settle.service
+After=systemd-udev-settle.service systemd-logind.service
 
 [Service]
 Type=forking
